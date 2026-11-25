@@ -1,0 +1,17 @@
+{
+  "framework": "vite",
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api"
+    },
+    {
+      "source": "/uploads/(.*)",
+      "destination": "/api"
+    },
+    {
+      "source": "/((?!api/|assets/|favicon|.*\\..*).*)",
+      "destination": "/index.html"
+    }
+  ]
+}
