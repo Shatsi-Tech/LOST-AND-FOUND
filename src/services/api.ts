@@ -30,7 +30,22 @@ class SupabaseApiService {
     const raw = localStorage.getItem('unifind_user');
     if (!raw) return null;
     try {
-      return JSON.parse(raw) as User;
+      const user = JSON.parse(raw) as User;
+      // Validate that the user exists in database to avoid foreign key errors from stale sessions
+      if (user && user.id) {
+        const { data } = await supabase.from('users').select('id, full_name, student_staff_id, email, phone, role, account_status, department, created_at').eq('id', user.id).maybeSingle();
+        if (data) return data as User;
+        
+        // If not found by ID (e.g. from an older database reset), attempt lookup by email
+        if (user.email) {
+          const { data: byEmail } = await supabase.from('users').select('id, full_name, student_staff_id, email, phone, role, account_status, department, created_at').ilike('email', user.email).maybeSingle();
+          if (byEmail) {
+            localStorage.setItem('unifind_user', JSON.stringify(byEmail));
+            return byEmail as User;
+          }
+        }
+      }
+      return user;
     } catch {
       return null;
     }
