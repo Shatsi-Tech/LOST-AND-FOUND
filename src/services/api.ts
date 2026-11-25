@@ -315,6 +315,8 @@ class SupabaseApiService {
       item_reference,
       reporter_id: user.id,
       status: 'Found',
+      is_handed_to_security: payload.is_handed_to_security ? 1 : 0,
+      is_valuable: payload.is_valuable ? 1 : 0,
       current_storage_location: payload.current_storage_location || 'Campus Security Desk',
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),

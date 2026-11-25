@@ -74,6 +74,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = () => {
     localStorage.removeItem('unifind_token');
+    localStorage.removeItem('unifind_user');
     setUser(null);
     setToken(null);
   };
