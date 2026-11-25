@@ -1,0 +1,12 @@
+node_modules
+dist
+dist-server
+uploads/*
+!uploads/.gitkeep
+*.db
+*.db-journal
+.env
+.env.local
+.env.*
+!.env.example
+.DS_Store
