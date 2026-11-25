@@ -43,7 +43,7 @@ class SupabaseApiService {
 
   // AUTH
   async register(payload: any): Promise<{ user: User; token: string; message: string }> {
-    const { full_name, student_staff_id, email, phone, password, confirm_password, department } = payload;
+    const { full_name, student_staff_id, email, phone, password, confirm_password, department, role } = payload;
     if (!full_name || !student_staff_id || !email || !password) {
       throw new Error('Please fill in all required fields.');
     }
@@ -63,12 +63,12 @@ class SupabaseApiService {
     }
 
     const userId = 'usr_' + Math.random().toString(36).substring(2, 10);
-    const userRole = 'student';
+    const userRole = (role === 'admin' || role === 'officer' || role === 'student') ? role : 'student';
 
     const newUserRecord = {
       id: userId,
       full_name: full_name.trim(),
-      student_staff_id: student_staff_id.trim(),
+      student_staff_id: student_staff_id.trim().toUpperCase(),
       email: email.trim().toLowerCase(),
       phone: phone?.trim() || null,
       password: password, // For client-side demo schema
@@ -114,15 +114,16 @@ class SupabaseApiService {
   }
 
   async login(payload: any): Promise<{ user: User; token: string; message: string }> {
-    const { email, password } = payload;
-    if (!email || !password) {
-      throw new Error('Please enter email and password.');
+    const identifier = (payload.email || payload.identifier || '').trim();
+    const password = payload.password;
+    if (!identifier || !password) {
+      throw new Error('Please enter email / ID and password.');
     }
 
     const { data: userRecord, error } = await supabase
       .from('users')
       .select('*')
-      .ilike('email', email.trim())
+      .or(`email.ilike.${identifier},student_staff_id.ilike.${identifier}`)
       .maybeSingle();
 
     if (error || !userRecord) {
